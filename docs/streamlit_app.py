@@ -7,6 +7,7 @@ from docx import Document
 # Get the API key from environment variables
 API_KEY = os.getenv("GEMINI_API_KEY")
 API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
+
 # Check if the API key is loaded
 if not API_KEY:
     st.error("API key is missing. Please set the GEMINI_API_KEY environment variable.")
@@ -57,27 +58,26 @@ if st.button("Generate Letter"):
         st.text_area("Generated Letter", letter_content, height=300)
 
         # Export the generated letter to PDF or Word based on user selection
-        # Export the generated letter to PDF
-if export_format == "PDF":
-    pdf = FPDF()
-    pdf.add_page()
+        if export_format == "PDF":
+            pdf = FPDF()
+            pdf.add_page()
 
-    # Set font to a basic font that supports Unicode characters
-    pdf.set_font("Arial", size=12)
+            # Set font to a basic font that supports Unicode characters
+            pdf.set_font("Arial", size=12)
 
-    # Ensure proper encoding for special characters
-    letter_content_encoded = letter_content.encode('latin-1', 'replace').decode('latin-1')
+            # Ensure proper encoding for special characters
+            letter_content_encoded = letter_content.encode('latin-1', 'replace').decode('latin-1')
 
-    # Add the content to the PDF
-    pdf.multi_cell(0, 10, letter_content_encoded)
-    
-    # Save the PDF
-    pdf_filename = "recommendation_letter.pdf"
-    pdf.output(pdf_filename)
+            # Add the content to the PDF
+            pdf.multi_cell(0, 10, letter_content_encoded)
+            
+            # Save the PDF
+            pdf_filename = "recommendation_letter.pdf"
+            pdf.output(pdf_filename)
 
-    # Allow the user to download the PDF
-    with open(pdf_filename, "rb") as file:
-        st.download_button("Download PDF", file, file_name=pdf_filename, mime="application/pdf")
+            # Allow the user to download the PDF
+            with open(pdf_filename, "rb") as file:
+                st.download_button("Download PDF", file, file_name=pdf_filename, mime="application/pdf")
 
         elif export_format == "Word":
             doc = Document()
