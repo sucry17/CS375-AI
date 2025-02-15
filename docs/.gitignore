@@ -10,3 +10,5 @@ wheels/
 .venv
 # Api Key
 .env
+#secrets
+.toml
