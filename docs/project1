@@ -1,0 +1,74 @@
+import streamlit as st
+import requests
+import os
+from fpdf import FPDF
+from docx import Document
+
+# Get the API key from environment variables (or use it directly)
+API_KEY = os.getenv("GEMINI_API_KEY")  # Make sure you set this environment variable
+
+# Set up the app title
+st.title("AI Recommendation Letter Generator")
+
+# Input fields for user details
+user_details = st.text_area("Enter user details:")
+application_purpose = st.text_input("Application Purpose", "a STEM opportunity")
+template_choice = st.selectbox("Template Style", ["default", "technical", "analytical"])
+export_format = st.radio("Export Format", ["Text", "PDF", "Word"])
+
+# Button to trigger letter generation
+if st.button("Generate Letter"):
+    # Prepare the API request payload
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": f"Generate a recommendation letter for a {application_purpose} application. "
+                             f"User details: {user_details}. Template style: {template_choice}."}
+                ]
+            }
+        ]
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # Use the correct Gemini API URL
+    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=GEMINI_API_KEY"
+
+    try:
+        # Send the POST request to generate the letter
+        response = requests.post(api_url, headers=headers, json=data)
+        response.raise_for_status()  # Check for any errors
+        
+        # Extract only the letter content
+        response_json = response.json()
+        letter_content = response_json.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "No letter content returned.")
+
+        # Display the generated letter in the app
+        st.text_area("Generated Letter", letter_content, height=300)
+
+        # Export the generated letter to PDF or Word based on user selection
+        if export_format == "PDF":
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_auto_page_break(auto=True, margin=15)
+            pdf.set_font("Times", size=12)
+            pdf.multi_cell(0, 10, letter_content)
+            pdf_filename = "recommendation_letter.pdf"
+            pdf.output(pdf_filename)
+            with open(pdf_filename, "rb") as file:
+                st.download_button("Download PDF", file, file_name=pdf_filename, mime="application/pdf")
+
+        elif export_format == "Word":
+            doc = Document()
+            doc.add_paragraph(letter_content)
+            word_filename = "recommendation_letter.docx"
+            doc.save(word_filename)
+            with open(word_filename, "rb") as file:
+                st.download_button("Download Word", file, file_name=word_filename, mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+    except requests.exceptions.RequestException as e:
+        # Show an error message if the API request fails
+        st.error(f"Error generating letter: {e}")
