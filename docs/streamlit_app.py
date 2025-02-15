@@ -35,7 +35,7 @@ if st.button("Generate Letter"):
     }
 
     # Use the correct Gemini API URL
-    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=GEMINI_API_KEY"
+    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
     try:
         # Send the POST request to generate the letter
