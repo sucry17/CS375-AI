@@ -4,8 +4,15 @@ import os
 from fpdf import FPDF
 from docx import Document
 
-# Get the API key from environment variables (or use it directly)
-API_KEY = os.getenv("GEMINI_API_KEY")  # Make sure you set this environment variable
+# Get the API key from environment variables
+API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Check if the API key is loaded
+if not API_KEY:
+    st.error("API key is missing. Please set the GEMINI_API_KEY environment variable.")
+    st.stop()  # Prevent the rest of the code from running
+else:
+    st.write(f"API Key Loaded: {API_KEY[:10]}...")  # Print part of the key for verification
 
 # Set up the app title
 st.title("AI Recommendation Letter Generator")
