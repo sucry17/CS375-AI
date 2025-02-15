@@ -6,7 +6,7 @@ from docx import Document
 
 # Get the API key from environment variables
 API_KEY = os.getenv("GEMINI_API_KEY")
-
+API_KEY = st.secrets["api_keys"]["GEMINI_API_KEY"]
 # Check if the API key is loaded
 if not API_KEY:
     st.error("API key is missing. Please set the GEMINI_API_KEY environment variable.")
